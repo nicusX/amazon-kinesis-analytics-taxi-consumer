@@ -109,24 +109,29 @@ public class ProcessTaxiStream {
 
 
     DataStream<PickupCount> pickupCounts = trips
-        //compute geo hash for every event
+        //(1) compute geo hash for every event
         .map(new TripToGeoHash())
+        //(2) partition by geo hash
         .keyBy(item -> item.geoHash)
-        //collect all events in a one hour window
+        //(3) collect all events in a one hour window
         .window(TumblingEventTimeWindows.of(Time.hours(1)))
-        //count events per geo hash in the one hour window
+        //(4) count events per geo hash in the one hour window
         .apply(new CountByGeoHash());
 
 
     DataStream<AverageTripDuration> tripDurations = trips
+        //(1) trips to trip durations, only retaining trips to the airports
         .flatMap(new TripToTripDuration())
+        //(2) partition by pickup location geo hash and destination airport
         .keyBy(new KeySelector<TripDuration, Tuple2<String, String>>() {
           @Override
           public Tuple2<String, String> getKey(TripDuration item) throws Exception {
             return Tuple2.of(item.pickupGeoHash, item.airportCode);
           }
         })
+        //(3) collect all trip durations in the one hour window
         .window(TumblingEventTimeWindows.of(Time.hours(1)))
+        //(4) calculate average trip duration, per pickup geo hash and destination airport, in the one hour window
         .apply(new TripDurationToAverageTripDuration());
 
 
@@ -134,7 +139,7 @@ public class ProcessTaxiStream {
       String elasticsearchEndpoint = parameter.get("ElasticsearchEndpoint");
       final String region = parameter.get("Region", DEFAULT_REGION_NAME);
 
-      //remove trailling /
+      //remove trailing /
       if (elasticsearchEndpoint.endsWith(("/"))) {
         elasticsearchEndpoint = elasticsearchEndpoint.substring(0, elasticsearchEndpoint.length()-1);
       }
