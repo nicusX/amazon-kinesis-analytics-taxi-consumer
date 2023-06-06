@@ -49,8 +49,8 @@ import org.slf4j.LoggerFactory;
 public class ProcessTaxiStream {
   private static final Logger LOG = LoggerFactory.getLogger(ProcessTaxiStream.class);
 
-  private static final String DEFAULT_STREAM_NAME = "streaming-analytics-workshop";
-  private static final String DEFAULT_REGION_NAME = Regions.getCurrentRegion()==null ? "eu-west-1" : Regions.getCurrentRegion().getName();
+  private static final String DEFAULT_STREAM_NAME = "msf-immersion-day";
+  private static final String DEFAULT_REGION_NAME = Regions.getCurrentRegion()==null ? "us-east-1" : Regions.getCurrentRegion().getName();
 
 
   public static void main(String[] args) throws Exception {
@@ -135,17 +135,17 @@ public class ProcessTaxiStream {
         .apply(new TripDurationToAverageTripDuration());
 
 
-    if (parameter.has("ElasticsearchEndpoint")) {
-      String elasticsearchEndpoint = parameter.get("ElasticsearchEndpoint");
+    if (parameter.has("OpenSearchEndpoint")) {
+      String opensearchEndpoint = parameter.get("OpenSearchEndpoint");
       final String region = parameter.get("Region", DEFAULT_REGION_NAME);
 
       //remove trailing /
-      if (elasticsearchEndpoint.endsWith(("/"))) {
-        elasticsearchEndpoint = elasticsearchEndpoint.substring(0, elasticsearchEndpoint.length()-1);
+      if (opensearchEndpoint.endsWith(("/"))) {
+        opensearchEndpoint = opensearchEndpoint.substring(0, opensearchEndpoint.length()-1);
       }
 
-      pickupCounts.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, "pickup_count", "_doc"));
-      tripDurations.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, "trip_duration", "_doc"));
+      pickupCounts.addSink(AmazonElasticsearchSink.buildElasticsearchSink(opensearchEndpoint, region, "pickup_count", "_doc"));
+      tripDurations.addSink(AmazonElasticsearchSink.buildElasticsearchSink(opensearchEndpoint, region, "trip_duration", "_doc"));
     }
 
 
