@@ -69,7 +69,7 @@ public class ProcessTaxiStream {
       Properties flinkProperties = applicationProperties.get("FlinkApplicationProperties");
 
       if (flinkProperties == null) {
-        throw new RuntimeException("Unable to load FlinkApplicationProperties properties from the Kinesis Analytics Runtime.");
+        throw new RuntimeException("Unable to load FlinkApplicationProperties properties from the MSF (Kinesis Analytics) runtime.");
       }
 
       parameter = ParameterToolUtils.fromApplicationProperties(flinkProperties);
